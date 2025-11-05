@@ -1,32 +1,45 @@
-'use strict';
+"use strict";
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const ProfileController = require("../controllers/ProfileController");
 
-const profiles = [
-  {
-    "id": 1,
-    "name": "A Martinez",
-    "description": "Adolph Larrue Martinez III.",
-    "mbti": "ISFJ",
-    "enneagram": "9w3",
-    "variant": "sp/so",
-    "tritype": 725,
-    "socionics": "SEE",
-    "sloan": "RCOEN",
-    "psyche": "FEVL",
-    "image": "https://soulverse.boo.world/images/1.png",
-  }
-];
+module.exports = function () {
+  const profileController = new ProfileController();
 
-module.exports = function() {
+  // Web routes - Render profile pages
+  router.get("/:id?", (req, res, next) => {
+    profileController.renderProfile(req, res, next);
+  });
 
-  router.get('/*', function(req, res, next) {
-    res.render('profile_template', {
-      profile: profiles[0],
-    });
+  // API routes - JSON responses
+  router.get("/api/profiles", (req, res, next) => {
+    profileController.getAllProfiles(req, res, next);
+  });
+
+  router.get("/api/profiles/:id", (req, res, next) => {
+    profileController.getProfileById(req, res, next);
+  });
+
+  router.post("/api/profiles", (req, res, next) => {
+    profileController.createProfile(req, res, next);
+  });
+
+  router.put("/api/profiles/:id", (req, res, next) => {
+    profileController.updateProfile(req, res, next);
+  });
+
+  router.delete("/api/profiles/:id", (req, res, next) => {
+    profileController.deleteProfile(req, res, next);
+  });
+
+  router.get("/api/stats", (req, res, next) => {
+    profileController.getProfileStats(req, res, next);
+  });
+
+  router.get("/*", (req, res, next) => {
+    profileController.renderDefaultProfile(req, res, next);
   });
 
   return router;
-}
-
+};
