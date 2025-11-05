@@ -84,8 +84,8 @@ router.get("/info", (req, res) => {
     version,
     description,
     endpoints: {
-      profiles: `${baseUrl}/api/profiles`,
-      statistics: `${baseUrl}/api/stats`,
+      profiles: `${baseUrl}/api/profile`,
+      statistics: `${baseUrl}/api/profile/stats`,
       health: `${baseUrl}/api/health`,
       documentation: `${baseUrl}/docs`,
     },

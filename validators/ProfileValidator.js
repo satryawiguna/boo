@@ -2,7 +2,6 @@
 
 const yup = require("yup");
 
-// Custom validation for MBTI format
 const mbtiValidation = yup
   .string()
   .matches(
@@ -12,7 +11,6 @@ const mbtiValidation = yup
   .uppercase()
   .required("MBTI is required");
 
-// Custom validation for image URL
 const imageUrlValidation = yup
   .string()
   .url("Image must be a valid URL")
@@ -22,7 +20,6 @@ const imageUrlValidation = yup
   )
   .required("Image URL is required");
 
-// Custom validation for tritype
 const tritypeValidation = yup
   .number()
   .integer("Tritype must be an integer")
@@ -30,7 +27,6 @@ const tritypeValidation = yup
   .max(999, "Tritype must be a 3-digit number (100-999)")
   .required("Tritype is required");
 
-// Profile creation schema (all fields required)
 const createProfileSchema = yup.object().shape({
   profileId: yup
     .number()
@@ -98,7 +94,6 @@ const createProfileSchema = yup.object().shape({
   image: imageUrlValidation,
 });
 
-// Profile update schema (all fields optional but validated when present)
 const updateProfileSchema = yup.object().shape({
   name: yup
     .string()
@@ -171,7 +166,6 @@ const updateProfileSchema = yup.object().shape({
     ),
 });
 
-// Profile ID validation schema (for parameters)
 const profileIdSchema = yup.object().shape({
   id: yup
     .number()
@@ -181,7 +175,6 @@ const profileIdSchema = yup.object().shape({
     .required("Profile ID is required"),
 });
 
-// Pagination validation schema
 const paginationSchema = yup.object().shape({
   page: yup
     .number()
@@ -197,9 +190,6 @@ const paginationSchema = yup.object().shape({
     .default(10),
 });
 
-/**
- * Validation helper functions
- */
 class ProfileValidator {
   static async validateCreate(data) {
     try {

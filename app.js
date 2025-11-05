@@ -93,8 +93,15 @@ async function startServer() {
     // API documentation and system routes
     app.use("/api", require("./routes/api-docs"));
 
-    // Profile routes
-    app.use("/", require("./routes/profile")());
+    // Api comment, profile and voting routes (MUST come before web routes)
+    app.use("/api/comments", require("./routes/comments")());
+    app.use("/api/comments", require("./routes/comment-votes")());
+    app.use("/api/profile", require("./routes/profile")());
+    app.use("/api/profiles", require("./routes/profile-comments")());
+    app.use("/api/votes", require("./routes/votes")());
+
+    // Web routes (catch-all, must be LAST)
+    app.use("/", require("./routes/web")());
 
     // start server
     const server = app.listen(port);

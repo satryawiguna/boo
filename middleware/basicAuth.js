@@ -58,7 +58,6 @@ function createSwaggerAuth() {
     challenge: "Authentication required to access Swagger documentation",
   };
 
-  // Log configuration (without password) in development
   if (process.env.NODE_ENV === "development") {
     console.log("Swagger Auth Configuration:");
     console.log(`  Username: ${config.username}`);
