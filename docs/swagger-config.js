@@ -69,8 +69,8 @@ No rate limiting is currently implemented. Consider adding rate limiting for pro
       description: "Profile management endpoints",
     },
     {
-      name: "Statistics",
-      description: "Analytics and statistics endpoints",
+      name: "Profile Statistics",
+      description: "Profile analytics and statistics",
     },
   ],
   components: {
@@ -197,7 +197,7 @@ No rate limiting is currently implemented. Consider adding rate limiting for pro
           image: "https://soulverse.boo.world/images/1.png",
         },
       },
-      ProfileInput: {
+      ProfileCreate: {
         type: "object",
         required: [
           "profileId",
@@ -605,12 +605,7 @@ No rate limiting is currently implemented. Consider adding rate limiting for pro
 
 const options = {
   definition: swaggerDefinition,
-  apis: [
-    "./routes/*.js",
-    "./controllers/*.js",
-    "./models/*.js",
-    "./docs/swagger-paths.js",
-  ],
+  apis: ["./routes/*.js", "./controllers/*.js", "./models/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

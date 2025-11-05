@@ -7,7 +7,7 @@ const ProfileService = require("../services/ProfileService");
  * tags:
  *   - name: Profiles
  *     description: Profile management operations
- *   - name: Statistics
+ *   - name: Profile Statistics
  *     description: Profile analytics and statistics
  */
 
@@ -21,28 +21,6 @@ const ProfileService = require("../services/ProfileService");
 class ProfileController {
   constructor() {
     this.profileService = new ProfileService();
-  }
-
-  async renderProfile(req, res, next) {
-    try {
-      const profileId = req.params.id ? parseInt(req.params.id) : 1;
-      const profile = await this.profileService.getProfileById(
-        profileId,
-        !req.params.id
-      );
-
-      if (!profile) {
-        return res.status(404).render("error", {
-          message: "Profile not found",
-          error: { status: 404 },
-        });
-      }
-
-      res.render("profile_template", { profile });
-    } catch (error) {
-      console.error("Controller error rendering profile:", error);
-      next(error);
-    }
   }
 
   async getAllProfiles(req, res, next) {
@@ -189,24 +167,6 @@ class ProfileController {
       res.json(stats);
     } catch (error) {
       console.error("Controller error getting profile stats:", error);
-      next(error);
-    }
-  }
-
-  async renderDefaultProfile(req, res, next) {
-    try {
-      const profile = await this.profileService.getProfileById(1, true);
-
-      if (!profile) {
-        return res.status(404).render("error", {
-          message: "No profiles found",
-          error: { status: 404 },
-        });
-      }
-
-      res.render("profile_template", { profile });
-    } catch (error) {
-      console.error("Controller error rendering default profile:", error);
       next(error);
     }
   }
