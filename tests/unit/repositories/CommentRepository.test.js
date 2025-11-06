@@ -21,7 +21,7 @@ jest.mock("../../../models/Comment", () => mockComment);
 
 const CommentRepository = require("../../../repositories/CommentRepository");
 const Comment = require("../../../models/Comment");
-const { mockFactories } = require("../../helpers/testHelpers");
+const { mockFactories } = require("../../helpers/testUnitHelpers");
 
 describe("CommentRepository", () => {
   let commentRepository;

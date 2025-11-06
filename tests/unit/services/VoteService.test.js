@@ -11,7 +11,7 @@ const {
   createMockRepository,
   createMockService,
   createMockModel,
-} = require("../../helpers/testHelpers");
+} = require("../../helpers/testUnitHelpers");
 
 describe("VoteService", () => {
   let voteService;

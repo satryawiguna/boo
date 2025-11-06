@@ -2,7 +2,7 @@ const VoteRepository = require("../../../repositories/VoteRepository");
 const {
   mockFactories,
   createMockMongooseModel,
-} = require("../../helpers/testHelpers");
+} = require("../../helpers/testUnitHelpers");
 
 jest.mock("../../../models/Vote", () => {
   const mockVote = jest.fn().mockImplementation(function (data = {}) {

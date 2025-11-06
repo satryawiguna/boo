@@ -300,6 +300,48 @@ module.exports = function () {
 
   /**
    * @swagger
+   * /api/profile/stats:
+   *   get:
+   *     summary: Get profile statistics
+   *     tags: [Profile Statistics]
+   *     description: |
+   *       Retrieve comprehensive statistics about all profiles.
+   *
+   *       **Includes:**
+   *       - Total profile count
+   *       - MBTI type distribution
+   *       - Last update timestamp
+   *
+   *       **Use Cases:**
+   *       - Dashboard analytics
+   *       - Data insights
+   *       - Reporting
+   *     responses:
+   *       200:
+   *         description: Statistics retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ProfileStats'
+   *             example:
+   *               totalProfiles: 15
+   *               mbtiDistribution:
+   *                 ISFJ: 3
+   *                 ENFP: 4
+   *                 INTJ: 2
+   *                 ESFP: 3
+   *                 INFP: 2
+   *                 ESTJ: 1
+   *               lastUpdated: "2025-11-05T10:30:00.000Z"
+   *       500:
+   *         description: Internal server error
+   */
+  router.get("/stats", (req, res, next) => {
+    profileController.getProfileStats(req, res, next);
+  });
+
+  /**
+   * @swagger
    * /api/profile/{id}:
    *   get:
    *     summary: Get profile by ID
@@ -507,48 +549,6 @@ module.exports = function () {
    */
   router.delete("/:id", (req, res, next) => {
     profileController.deleteProfile(req, res, next);
-  });
-
-  /**
-   * @swagger
-   * /api/profile/stats:
-   *   get:
-   *     summary: Get profile statistics
-   *     tags: [Profile Statistics]
-   *     description: |
-   *       Retrieve comprehensive statistics about all profiles.
-   *
-   *       **Includes:**
-   *       - Total profile count
-   *       - MBTI type distribution
-   *       - Last update timestamp
-   *
-   *       **Use Cases:**
-   *       - Dashboard analytics
-   *       - Data insights
-   *       - Reporting
-   *     responses:
-   *       200:
-   *         description: Statistics retrieved successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/ProfileStats'
-   *             example:
-   *               totalProfiles: 15
-   *               mbtiDistribution:
-   *                 ISFJ: 3
-   *                 ENFP: 4
-   *                 INTJ: 2
-   *                 ESFP: 3
-   *                 INFP: 2
-   *                 ESTJ: 1
-   *               lastUpdated: "2025-11-05T10:30:00.000Z"
-   *       500:
-   *         description: Internal server error
-   */
-  router.get("/stats", (req, res, next) => {
-    profileController.getProfileStats(req, res, next);
   });
 
   return router;

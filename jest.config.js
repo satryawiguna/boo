@@ -1,49 +1,48 @@
 module.exports = {
-  // Test environment
   testEnvironment: "node",
-
-  // Test file patterns
   testMatch: ["**/tests/**/*.test.js", "**/tests/**/*.spec.js"],
-
-  // Coverage configuration
-  collectCoverage: true,
-  collectCoverageFrom: [
-    "controllers/**/*.js",
-    "services/**/*.js",
-    "repositories/**/*.js",
-    "models/**/*.js",
-    "validators/**/*.js",
-    "!**/node_modules/**",
-    "!**/tests/**",
-  ],
-  coverageDirectory: "coverage",
-  coverageReporters: ["text", "lcov", "html", "json-summary"],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+  projects: [
+    {
+      displayName: "unit",
+      testMatch: ["**/tests/unit/**/*.test.js", "**/tests/unit/**/*.spec.js"],
+      setupFilesAfterEnv: ["<rootDir>/tests/setup/jest.unit.setup.js"],
+      coveragePathIgnorePatterns: ["/node_modules/", "/tests/"],
+      collectCoverageFrom: [
+        "controllers/**/*.js",
+        "services/**/*.js",
+        "repositories/**/*.js",
+        "models/**/*.js",
+        "validators/**/*.js",
+        "!**/node_modules/**",
+        "!**/tests/**",
+      ],
+      coverageDirectory: "coverage",
+      coverageReporters: ["text", "lcov", "html", "json-summary"],
+      coverageThreshold: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
+      },
+      testTimeout: 30000,
     },
-  },
-
-  // Setup files
-  setupFilesAfterEnv: ["<rootDir>/tests/setup/jest.setup.js"],
-
-  // Module paths
+    {
+      displayName: "integration",
+      testMatch: [
+        "**/tests/integration/**/*.test.js",
+        "**/tests/integration/**/*.spec.js",
+      ],
+      setupFilesAfterEnv: ["<rootDir>/tests/setup/jest.integration.setup.js"],
+      testTimeout: 45000,
+      detectOpenHandles: true,
+    },
+  ],
   moduleDirectories: ["node_modules", "<rootDir>"],
-
-  // Clear mocks between tests
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
-
-  // Verbose output
   verbose: true,
-
-  // Test timeout (30 seconds)
-  testTimeout: 30000,
-
-  // Transform ignore patterns
   transformIgnorePatterns: ["node_modules/(?!(supertest)/)"],
 };

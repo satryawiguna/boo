@@ -1,12 +1,5 @@
-/**
- * Jest Setup File
- * Global configuration and utilities for all tests
- */
-
-// Global test configuration
 global.console = {
   ...console,
-  // Suppress console.error and console.warn in tests unless needed
   error: process.env.NODE_ENV === "test" ? jest.fn() : console.error,
   warn: process.env.NODE_ENV === "test" ? jest.fn() : console.warn,
   log: console.log,
@@ -14,10 +7,8 @@ global.console = {
   debug: console.debug,
 };
 
-// Set test environment
 process.env.NODE_ENV = "test";
 
-// Mock external dependencies that shouldn't be called in unit tests
 jest.mock("mongoose", () => {
   const mockSchema = jest.fn().mockImplementation(() => ({
     index: jest.fn(),
@@ -30,7 +21,6 @@ jest.mock("mongoose", () => {
     set: jest.fn(),
   }));
 
-  // Add Schema.Types mock
   mockSchema.Types = {
     ObjectId: "ObjectId",
     String: String,
@@ -63,7 +53,6 @@ jest.mock("mongoose", () => {
   };
 });
 
-// Global test utilities
 global.createMockRequest = (overrides = {}) => ({
   params: {},
   query: {},
@@ -85,5 +74,4 @@ global.createMockResponse = () => {
 
 global.createMockNext = () => jest.fn();
 
-// Timeout for async operations
 jest.setTimeout(10000);

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Profile = require("../../../models/Profile");
-const { mockFactories } = require("../../helpers/testHelpers");
+const { mockFactories } = require("../../helpers/testUnitHelpers");
 
 jest.mock("mongoose", () => {
   const originalMongoose = jest.requireActual("mongoose");

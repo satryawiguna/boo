@@ -8,7 +8,7 @@ const {
   mockFactories,
   createMockRepository,
   createMockModel,
-} = require("../../helpers/testHelpers");
+} = require("../../helpers/testUnitHelpers");
 
 describe("CommentService", () => {
   let commentService;

@@ -8,7 +8,7 @@ const {
   mockFactories,
   createMockService,
   testHelpers,
-} = require("../../helpers/testHelpers");
+} = require("../../helpers/testUnitHelpers");
 
 describe("CommentController", () => {
   let commentController;

@@ -1,13 +1,4 @@
-/**
- * Test Helper Functions
- * Common utilities for creating test data and mocks
- */
-
-/**
- * Mock Data Factories
- */
 const mockFactories = {
-  // Comment mock data
   comment: (overrides = {}) => ({
     _id: "507f1f77bcf86cd799439011",
     profileId: 1,
@@ -68,7 +59,6 @@ const mockFactories = {
     ...overrides,
   }),
 
-  // Error objects
   validationError: (message = "Validation failed", details = {}) => {
     const error = new Error(message);
     error.name = "ValidationError";
@@ -96,9 +86,6 @@ const mockFactories = {
   },
 };
 
-/**
- * Mock Service Factories
- */
 const createMockService = (serviceName, methods = []) => {
   const mockService = {};
 
@@ -147,9 +134,6 @@ const createMockService = (serviceName, methods = []) => {
   return mockService;
 };
 
-/**
- * Mock Repository Factories
- */
 const createMockRepository = (repositoryName, methods = []) => {
   const mockRepository = {};
 
@@ -201,9 +185,6 @@ const createMockRepository = (repositoryName, methods = []) => {
   return mockRepository;
 };
 
-/**
- * Mock Model Factories
- */
 const createMockModel = (overrides = {}) => ({
   toPublicJSON: jest.fn().mockReturnValue({
     _id: "507f1f77bcf86cd799439011",
@@ -213,34 +194,23 @@ const createMockModel = (overrides = {}) => ({
   ...overrides,
 });
 
-/**
- * Mock Mongoose Model Factories for Repository Testing
- */
 const createMockMongooseModel = (modelName, staticMethods = []) => {
-  // Create a constructor function that can be called with 'new'
   const mockModel = jest.fn().mockImplementation(function (data = {}) {
-    // Instance methods and properties
     const instance = {
       ...data,
       _id: data._id || "507f1f77bcf86cd799439011",
-      save: jest
-        .fn()
-        .mockResolvedValue({
-          ...data,
-          _id: data._id || "507f1f77bcf86cd799439011",
-        }),
-      toObject: jest
-        .fn()
-        .mockReturnValue({
-          ...data,
-          _id: data._id || "507f1f77bcf86cd799439011",
-        }),
-      toJSON: jest
-        .fn()
-        .mockReturnValue({
-          ...data,
-          _id: data._id || "507f1f77bcf86cd799439011",
-        }),
+      save: jest.fn().mockResolvedValue({
+        ...data,
+        _id: data._id || "507f1f77bcf86cd799439011",
+      }),
+      toObject: jest.fn().mockReturnValue({
+        ...data,
+        _id: data._id || "507f1f77bcf86cd799439011",
+      }),
+      toJSON: jest.fn().mockReturnValue({
+        ...data,
+        _id: data._id || "507f1f77bcf86cd799439011",
+      }),
       incrementVoteCount: jest.fn(),
       decrementVoteCount: jest.fn(),
     };
@@ -305,10 +275,8 @@ const createMockMongooseModel = (modelName, staticMethods = []) => {
   const methodsToMock =
     staticMethods.length > 0 ? staticMethods : defaultMethods[modelName] || [];
 
-  // Add static methods to the constructor
   methodsToMock.forEach((method) => {
     if (method === "find" || method === "findOne") {
-      // Chain methods for query builders
       mockModel[method] = jest.fn().mockReturnValue({
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
@@ -327,11 +295,7 @@ const createMockMongooseModel = (modelName, staticMethods = []) => {
   return mockModel;
 };
 
-/**
- * Request/Response Test Helpers
- */
 const testHelpers = {
-  // Create mock Express request
   createMockReq: (overrides = {}) => ({
     params: {},
     query: {},
@@ -346,7 +310,6 @@ const testHelpers = {
     ...overrides,
   }),
 
-  // Create mock Express response
   createMockRes: () => {
     const res = {};
     res.status = jest.fn().mockReturnValue(res);
@@ -356,10 +319,8 @@ const testHelpers = {
     return res;
   },
 
-  // Create mock next function
   createMockNext: () => jest.fn(),
 
-  // Assertion helpers
   expectValidationError: (res, expectedMessage = null) => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
@@ -381,11 +342,7 @@ const testHelpers = {
   },
 
   expectSuccessResponse: (res, statusCode = 200) => {
-    // For successful responses, Express controllers often just call res.json()
-    // which defaults to 200, so we check if either status was called with 200
-    // or json was called (which implies 200)
     if (statusCode === 200) {
-      // If expecting 200, just check that json was called and status wasn't called with error codes
       expect(res.json).toHaveBeenCalled();
       if (res.status.mock.calls.length > 0) {
         expect(res.status).not.toHaveBeenCalledWith(

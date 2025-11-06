@@ -20,7 +20,7 @@ jest.mock("../../../models/Profile", () => mockProfile);
 
 const ProfileRepository = require("../../../repositories/ProfileRepository");
 const Profile = require("../../../models/Profile");
-const { mockFactories } = require("../../helpers/testHelpers");
+const { mockFactories } = require("../../helpers/testUnitHelpers");
 
 describe("ProfileRepository", () => {
   let profileRepository;
