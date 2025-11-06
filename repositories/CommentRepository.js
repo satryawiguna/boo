@@ -101,12 +101,7 @@ class CommentRepository {
       const skip = (page - 1) * limit;
 
       const [comments, totalCount] = await Promise.all([
-        Comment.find(query)
-          .sort(sortCriteria)
-          .skip(skip)
-          .limit(limit)
-          .populate("profileId", "name")
-          .lean(),
+        Comment.find(query).sort(sortCriteria).skip(skip).limit(limit).lean(),
         Comment.countDocuments(query),
       ]);
 
@@ -202,7 +197,6 @@ class CommentRepository {
         Comment.find({ isVisible: true })
           .sort({ totalVotes: -1, createdAt: -1 })
           .limit(10)
-          .populate("profileId", "name")
           .lean(),
       ]);
 

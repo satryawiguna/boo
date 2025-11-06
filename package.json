@@ -6,7 +6,21 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --selectProjects unit --coverage",
+    "test:unit": "jest --selectProjects unit",
+    "test:integration": "jest --selectProjects integration",
+    "test:integration:log": "jest --selectProjects integration > test-integration.log 2>&1 || true && echo 'Integration test results saved to test-integration.log'",
+    "test:all": "jest --selectProjects unit integration",
+    "test:controllers": "jest tests/unit/controllers",
+    "test:services": "jest tests/unit/services",
+    "test:repositories": "jest tests/unit/repositories",
+    "test:models": "jest tests/unit/models",
+    "test:validators": "jest tests/unit/validators",
+    "test:verbose": "jest --verbose",
+    "test:silent": "jest --silent",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +34,10 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.3.0",
+    "supertest": "^7.1.4"
   }
 }
