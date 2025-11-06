@@ -6,7 +6,19 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:controllers": "jest tests/unit/controllers",
+    "test:services": "jest tests/unit/services",
+    "test:repositories": "jest tests/unit/repositories",
+    "test:models": "jest tests/unit/models",
+    "test:validators": "jest tests/unit/validators",
+    "test:verbose": "jest --verbose",
+    "test:silent": "jest --silent",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "keywords": [],
   "author": "",
