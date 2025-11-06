@@ -511,35 +511,18 @@ cp .env.example .env
 ### Key Environment Variables
 
 ```env
-# Application
 NODE_ENV=development
 PORT=3000
+APP_NAME=Boo App
 
-# Database (Local MongoDB)
-MONGODB_URI=mongodb://localhost:27017/boo
-MONGODB_TEST_URI=mongodb://localhost:27017/boo_test
+# Database Configuration
+# MONGODB_URI=mongodb://localhost:27017/boo_profiles
+MONGODB_URI=mongodb+srv://root:<your_mongodb_password>@boo.o80rphe.mongodb.net/?appName=boo
 
-# Database (MongoDB Atlas - Cloud)
-# MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/boo?retryWrites=true&w=majority
-# MONGODB_TEST_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/boo_test?retryWrites=true&w=majority
-
-# API Configuration
-API_VERSION=v1
-API_PREFIX=/api
-
-# Swagger Documentation
-SWAGGER_ENABLED=true
-SWAGGER_PATH=/api-docs
-SWAGGER_TITLE=Boo Personality Comment & Voting API
-
-# Performance & Pagination
-DEFAULT_PAGE_SIZE=20
-MAX_PAGE_SIZE=100
-
-# Application Features
-PERSONALITY_SYSTEMS=mbti,enneagram,zodiac
-MAX_COMMENT_LENGTH=1000
-ENABLE_VOTE_UPDATES=true
+# Swagger Documentation Authentication
+SWAGGER_USERNAME=admin
+SWAGGER_PASSWORD=<your_api_doc_password>
+SWAGGER_REALM=Boo API Documentation
 ```
 
 ### Database Connection Options
