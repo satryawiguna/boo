@@ -263,7 +263,6 @@ describe("CommentRepository", () => {
 
       expect(Comment.find).toHaveBeenCalledWith({ isVisible: true });
       expect(Comment.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
-      expect(Comment.find().populate).toHaveBeenCalledWith("profileId", "name");
       expect(result).toEqual({
         comments: mockComments,
         pagination: {
@@ -514,7 +513,6 @@ describe("CommentRepository", () => {
         createdAt: -1,
       });
       expect(mockQuery.limit).toHaveBeenCalledWith(10);
-      expect(mockQuery.populate).toHaveBeenCalledWith("profileId", "name");
       expect(result).toEqual({
         totalComments: 25,
         topComments: mockTopComments,

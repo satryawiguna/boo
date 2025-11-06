@@ -1,10 +1,3 @@
-/**
- * Comment Votes API Integration Tests
- *
- * Comprehensive test suite for Comment Voting API endpoints
- * Tests voting operations, statistics, user-specific votes, and validation
- */
-
 const request = require("supertest");
 const {
   testDataFactories,
@@ -22,18 +15,14 @@ describe("Comment Votes API Integration Tests", () => {
   });
 
   beforeEach(async () => {
-    // Clean database before each test
     await databaseHelpers.cleanDatabase();
 
-    // Create a test profile
     const profileData = testDataFactories.validProfile();
     const profileResponse = await request(app)
       .post("/api/profile")
       .send(profileData);
 
     profileId = profileResponse.body.profile.id;
-
-    // Create a test comment for voting
     const commentData = testDataFactories.validComment({ profileId });
     const commentResponse = await request(app)
       .post("/api/comments")
@@ -107,13 +96,11 @@ describe("Comment Votes API Integration Tests", () => {
         profileId: profileId,
       });
 
-      // Submit initial vote
       await request(app)
         .post(`/api/comments/${createdCommentId}/vote`)
         .send(voteData)
         .expect(201);
 
-      // Submit updated vote for same system
       const updatedVoteData = {
         ...voteData,
         personalityValue: "ENFP",
@@ -232,14 +219,13 @@ describe("Comment Votes API Integration Tests", () => {
 
         expect(response.body.vote).toBeDefined();
         expect(response.body.vote.profileId).toBeDefined();
-        // Note: API may override profileId with a default value
         expect(typeof response.body.vote.profileId).toBe("number");
       });
     });
 
     test("should return 404 for non-existent comment", async () => {
       const voteData = testDataFactories.validVote();
-      const fakeCommentId = "507f1f77bcf86cd799439011"; // Valid ObjectId format
+      const fakeCommentId = "507f1f77bcf86cd799439011";
 
       const response = await request(app)
         .post(`/api/comments/${fakeCommentId}/vote`)
@@ -265,7 +251,6 @@ describe("Comment Votes API Integration Tests", () => {
 
   describe("GET /comments/:commentId/votes - Get Comment Votes", () => {
     beforeEach(async () => {
-      // Create multiple votes for the comment
       const votes = testDataFactories.validVotes(createdCommentId, 5);
       for (const vote of votes) {
         await request(app)
@@ -315,7 +300,6 @@ describe("Comment Votes API Integration Tests", () => {
     });
 
     test("should return empty array for comment with no votes", async () => {
-      // Create another comment without votes
       const anotherCommentData = testDataFactories.validComment({ profileId });
       const anotherCommentResponse = await request(app)
         .post("/api/comments")
@@ -331,10 +315,9 @@ describe("Comment Votes API Integration Tests", () => {
 
   describe("GET /comments/:commentId/votes/stats - Get Vote Statistics", () => {
     beforeEach(async () => {
-      // Create diverse votes for statistics
       const votes = [
         { personalitySystem: "mbti", personalityValue: "INTJ" },
-        { personalitySystem: "mbti", personalityValue: "INTJ" }, // Duplicate for counting
+        { personalitySystem: "mbti", personalityValue: "INTJ" },
         { personalitySystem: "mbti", personalityValue: "ENFP" },
         { personalitySystem: "enneagram", personalityValue: "4w5" },
         { personalitySystem: "enneagram", personalityValue: "7w8" },
@@ -344,7 +327,7 @@ describe("Comment Votes API Integration Tests", () => {
       for (let i = 0; i < votes.length; i++) {
         await request(app)
           .post(`/api/comments/${createdCommentId}/vote`)
-          .set("X-Forwarded-For", `192.168.1.${i + 1}`) // Different IPs for different voters
+          .set("X-Forwarded-For", `192.168.1.${i + 1}`)
           .send({
             ...votes[i],
             profileId: profileId,
@@ -360,7 +343,6 @@ describe("Comment Votes API Integration Tests", () => {
       apiHelpers.expectValidVoteStatsResponse(response);
       expect(response.body.commentId).toBe(createdCommentId);
 
-      // Check that statistics contain vote counts
       expect(response.body.voteStats.mbti).toBeDefined();
       expect(response.body.voteStats.enneagram).toBeDefined();
       expect(response.body.voteStats.zodiac).toBeDefined();
@@ -389,7 +371,6 @@ describe("Comment Votes API Integration Tests", () => {
 
   describe("GET /comments/:commentId/votes/:personalitySystem - Get User Vote", () => {
     beforeEach(async () => {
-      // Submit a vote as the "current user"
       const voteData = testDataFactories.validVote({
         personalitySystem: "mbti",
         personalityValue: "INTJ",
@@ -449,7 +430,6 @@ describe("Comment Votes API Integration Tests", () => {
 
   describe("DELETE /comments/:commentId/votes/:personalitySystem - Remove Vote", () => {
     beforeEach(async () => {
-      // Submit votes for different personality systems
       const votes = [
         { personalitySystem: "mbti", personalityValue: "INTJ" },
         { personalitySystem: "enneagram", personalityValue: "4w5" },
@@ -477,19 +457,16 @@ describe("Comment Votes API Integration Tests", () => {
         }),
       });
 
-      // Verify vote is actually removed
       await request(app)
         .get(`/api/comments/${createdCommentId}/votes/mbti`)
         .expect(404);
     });
 
     test("should return 404 when trying to remove non-existent vote", async () => {
-      // Remove the vote first
       await request(app)
         .delete(`/api/comments/${createdCommentId}/votes/mbti`)
         .expect(200);
 
-      // Try to remove again
       const response = await request(app)
         .delete(`/api/comments/${createdCommentId}/votes/mbti`)
         .expect(404);
@@ -522,12 +499,10 @@ describe("Comment Votes API Integration Tests", () => {
     });
 
     test("should only remove vote for specified personality system", async () => {
-      // Remove MBTI vote
       await request(app)
         .delete(`/api/comments/${createdCommentId}/votes/mbti`)
         .expect(200);
 
-      // Verify other votes still exist
       await request(app)
         .get(`/api/comments/${createdCommentId}/votes/enneagram`)
         .expect(200);
@@ -546,13 +521,11 @@ describe("Comment Votes API Integration Tests", () => {
         profileId: profileId,
       });
 
-      // Vote as first user
       await request(app)
         .post(`/api/comments/${createdCommentId}/vote`)
         .set("X-Forwarded-For", "192.168.1.1")
         .send(voteData);
 
-      // Vote as second user with different value
       await request(app)
         .post(`/api/comments/${createdCommentId}/vote`)
         .set("X-Forwarded-For", "192.168.1.2")
@@ -561,12 +534,10 @@ describe("Comment Votes API Integration Tests", () => {
           personalityValue: "ENFP",
         });
 
-      // Get vote stats to verify both votes counted
       const statsResponse = await request(app)
         .get(`/api/comments/${createdCommentId}/votes/stats`)
         .expect(200);
 
-      // Should have votes for both INTJ and ENFP
       expect(statsResponse.body.voteStats.mbti.INTJ).toBe(1);
       expect(statsResponse.body.voteStats.mbti.ENFP).toBe(1);
     });
@@ -574,7 +545,6 @@ describe("Comment Votes API Integration Tests", () => {
     test("should handle concurrent voting", async () => {
       const votes = testDataFactories.validVotes(createdCommentId, 10);
 
-      // Submit multiple votes concurrently with different IPs
       const votePromises = votes.map((vote, index) =>
         request(app)
           .post(`/api/comments/${createdCommentId}/vote`)
@@ -585,18 +555,15 @@ describe("Comment Votes API Integration Tests", () => {
 
       const responses = await Promise.all(votePromises);
 
-      // All votes should be successful
       expect(responses).toHaveLength(10);
       responses.forEach((response) => {
         expect(response.body.success).toBe(true);
       });
 
-      // Verify vote count
       const statsResponse = await request(app)
         .get(`/api/comments/${createdCommentId}/votes/stats`)
         .expect(200);
 
-      // Should have votes across different personality systems
       const totalVotes =
         Object.values(statsResponse.body.voteStats.mbti || {}).reduce(
           (a, b) => a + b,
@@ -642,7 +609,7 @@ describe("Comment Votes API Integration Tests", () => {
     test("should handle very long personality values", async () => {
       const voteData = {
         personalitySystem: "mbti",
-        personalityValue: "A".repeat(1000), // Very long value
+        personalityValue: "A".repeat(1000),
         profileId: profileId,
       };
 

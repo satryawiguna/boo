@@ -1,10 +1,3 @@
-/**
- * Comment API Integration Tests
- *
- * Comprehensive test suite for Comment API endpoints following best practices
- * Tests all CRUD operations, validation, pagination, error handling, and edge cases
- */
-
 const request = require("supertest");
 const {
   testDataFactories,
@@ -22,10 +15,8 @@ describe("Comment API Integration Tests", () => {
   });
 
   beforeEach(async () => {
-    // Clean database before each test
     await databaseHelpers.cleanDatabase();
 
-    // Create a test profile for comment testing
     const profileData = testDataFactories.validProfile();
     const profileResponse = await request(app)
       .post("/api/profile")
@@ -55,7 +46,6 @@ describe("Comment API Integration Tests", () => {
         }),
       });
 
-      // Verify comment has vote statistics structure if provided
       if (response.body.comment.voteStats) {
         expect(response.body.comment.voteStats).toBeDefined();
         expect(response.body.comment.totalVotes).toBeDefined();
@@ -297,7 +287,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("GET /comments - Get All Comments", () => {
     beforeEach(async () => {
-      // Create multiple test comments
       const comments = testDataFactories.validComments(profileId, 5);
 
       for (const commentData of comments) {
@@ -366,7 +355,6 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should filter comments by profileId", async () => {
-      // Create another profile and comment
       const anotherProfileData = testDataFactories.validProfile({
         name: "Another Test Profile",
       });
@@ -382,13 +370,11 @@ describe("Comment API Integration Tests", () => {
       });
       await request(app).post("/api/comments").send(anotherCommentData);
 
-      // Filter by original profile ID
       const response = await request(app)
         .get("/api/comments")
         .query({ profileId })
         .expect(200);
 
-      // API might not filter properly, so check if results contain the expected profile
       expect(response.body.comments.length).toBeGreaterThan(0);
       const hasExpectedProfile = response.body.comments.some(
         (comment) => comment.profileId === profileId
@@ -402,7 +388,6 @@ describe("Comment API Integration Tests", () => {
         .query({ sort: "recent" })
         .expect(200);
 
-      // Should get comments in descending order by creation date
       const dates = response.body.comments.map(
         (comment) => new Date(comment.createdAt)
       );
@@ -419,7 +404,6 @@ describe("Comment API Integration Tests", () => {
         .query({ sort: "oldest" })
         .expect(200);
 
-      // Should get comments in ascending order by creation date
       const dates = response.body.comments.map(
         (comment) => new Date(comment.createdAt)
       );
@@ -429,7 +413,6 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should filter comments by personality systems", async () => {
-      // Test all filter options
       const filterOptions = ["all", "mbti", "enneagram", "zodiac"];
 
       for (const filter of filterOptions) {
@@ -447,7 +430,6 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should filter comments by author", async () => {
-      // Create comment with different author
       const differentAuthorComment = testDataFactories.validComment({
         profileId,
         author: "Different Author",
@@ -459,7 +441,6 @@ describe("Comment API Integration Tests", () => {
         .query({ author: "Test Author 1" })
         .expect(200);
 
-      // API might not filter by author, so check if results contain the expected author
       expect(response.body.comments.length).toBeGreaterThan(0);
       const hasExpectedAuthor = response.body.comments.some(
         (comment) => comment.author === "Test Author 1"
@@ -473,13 +454,11 @@ describe("Comment API Integration Tests", () => {
         .query({ sort: "recent" })
         .expect(200);
 
-      // Check that sorting is working (allow some tolerance for rapid creation times)
       const dates = response.body.comments.map(
         (comment) => new Date(comment.createdAt)
       );
       expect(dates.length).toBeGreaterThan(1);
 
-      // Check general ordering (allow for some timing variations)
       const isGenerallyOrdered = dates.every(
         (date, i) =>
           i === 0 ||
@@ -495,13 +474,11 @@ describe("Comment API Integration Tests", () => {
         .query({ sort: "oldest" })
         .expect(200);
 
-      // Check that sorting is working (allow some tolerance for rapid creation times)
       const dates = response.body.comments.map(
         (comment) => new Date(comment.createdAt)
       );
       expect(dates.length).toBeGreaterThan(1);
 
-      // Check general ordering (allow for some timing variations)
       const isGenerallyOrdered = dates.every(
         (date, i) =>
           i === 0 ||
@@ -559,7 +536,7 @@ describe("Comment API Integration Tests", () => {
         const response = await request(app)
           .get("/api/comments")
           .query({ sortBy: "invalidField" })
-          .expect(200); // API doesn't validate sortBy, uses default behavior
+          .expect(200);
 
         expect(response.body).toHaveProperty("comments");
       });
@@ -568,7 +545,7 @@ describe("Comment API Integration Tests", () => {
         const response = await request(app)
           .get("/api/comments")
           .query({ sortOrder: "invalid" })
-          .expect(200); // API doesn't validate sortOrder, uses default behavior
+          .expect(200);
 
         expect(response.body).toHaveProperty("comments");
       });
@@ -577,7 +554,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("PUT /comment/:id - Update Comment", () => {
     beforeEach(async () => {
-      // Create a test comment to update
       const commentData = testDataFactories.validComment({ profileId });
       const createResponse = await request(app)
         .post("/api/comments")
@@ -607,7 +583,6 @@ describe("Comment API Integration Tests", () => {
         }),
       });
 
-      // Verify updatedAt is different from createdAt
       expect(response.body.comment.updatedAt).not.toBe(
         response.body.comment.createdAt
       );
@@ -624,7 +599,6 @@ describe("Comment API Integration Tests", () => {
         .expect(200);
 
       expect(response.body.comment.content).toBe(updateData.content);
-      // Other fields should remain unchanged
       expect(response.body.comment.author).toBeDefined();
       expect(response.body.comment.profileId).toBe(profileId);
     });
@@ -651,7 +625,6 @@ describe("Comment API Integration Tests", () => {
         .put(`/api/comments/${createdCommentId}`)
         .send(updateData);
 
-      // API may either allow empty title (200) or reject it (400)
       if (response.status === 200) {
         expect(response.body.comment.title).toBe("");
       } else if (response.status === 400) {
@@ -659,7 +632,6 @@ describe("Comment API Integration Tests", () => {
           /(Validation error|Comment update validation failed)/
         );
       } else {
-        // Unexpected status
         expect([200, 400]).toContain(response.status);
       }
     });
@@ -706,8 +678,8 @@ describe("Comment API Integration Tests", () => {
 
       test("should return 400 when trying to update immutable fields", async () => {
         const updateData = {
-          author: "New Author", // Should not be updatable
-          profileId: 999, // Should not be updatable
+          author: "New Author",
+          profileId: 999,
           content: "Valid content update",
         };
 
@@ -715,7 +687,6 @@ describe("Comment API Integration Tests", () => {
           .put(`/api/comments/${createdCommentId}`)
           .send(updateData);
 
-        // API may either reject immutable field updates (400) or ignore them (200)
         if (response.status === 400) {
           expect(response.body.message).toMatch(
             /(Validation error|Comment update validation failed)/
@@ -726,11 +697,8 @@ describe("Comment API Integration Tests", () => {
             ])
           );
         } else if (response.status === 200) {
-          // API accepts the update but may ignore immutable fields
           expect(response.body.comment.content).toBe("Valid content update");
-          // Check if immutable fields were actually ignored or updated
         } else {
-          // Unexpected status
           expect([200, 400]).toContain(response.status);
         }
       });
@@ -743,7 +711,7 @@ describe("Comment API Integration Tests", () => {
         .put("/api/comments/99999")
         .send(updateData);
 
-      expect([400, 404]).toContain(response.status); // API may validate ID format first (400) or check existence (404)
+      expect([400, 404]).toContain(response.status);
       expect(response.body.message).toMatch(
         /(Comment not found|Invalid comment ID)/
       );
@@ -763,7 +731,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("DELETE /comment/:id - Delete Comment", () => {
     beforeEach(async () => {
-      // Create a test comment to delete
       const commentData = testDataFactories.validComment({ profileId });
       const createResponse = await request(app)
         .post("/api/comments")
@@ -781,16 +748,13 @@ describe("Comment API Integration Tests", () => {
         message: "Comment deleted successfully",
       });
 
-      // Check if comment is still accessible after delete (API may use soft delete)
       const getResponse = await request(app).get(
         `/api/comments/${createdCommentId}`
       );
 
       if (getResponse.status === 200) {
-        // If still accessible, it might be soft deleted - check for deleted flag
         expect(getResponse.body).toBeDefined();
       } else {
-        // Hard delete - comment should not be found
         expect([404, 410]).toContain(getResponse.status);
       }
     });
@@ -798,7 +762,7 @@ describe("Comment API Integration Tests", () => {
     test("should return appropriate error for non-existent comment ID", async () => {
       const response = await request(app).delete("/api/comments/99999");
 
-      expect([400, 404]).toContain(response.status); // API may validate ID format first (400) or check existence (404)
+      expect([400, 404]).toContain(response.status);
       expect(response.body.message).toMatch(
         /(Comment not found|Invalid comment ID)/
       );
@@ -813,24 +777,19 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should handle multiple delete attempts gracefully", async () => {
-      // First delete should succeed
       const firstDeleteResponse = await request(app)
         .delete(`/api/comments/${createdCommentId}`)
         .expect(200);
 
-      // Check if comment is still accessible (may depend on soft vs hard delete)
       const getResponse = await request(app).get(
         `/api/comments/${createdCommentId}`
       );
-      // Comment may still be accessible if using soft delete, or return 404 for hard delete
       expect([200, 404, 410]).toContain(getResponse.status);
 
-      // Second delete attempt - might return 404 or 200 depending on implementation
       const response = await request(app).delete(
         `/api/comments/${createdCommentId}`
       );
 
-      // Accept either 404 (hard delete) or 200 (soft delete/idempotent)
       expect([200, 404]).toContain(response.status);
 
       if (response.status === 404) {
@@ -841,7 +800,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("Advanced Query Parameters and Filtering", () => {
     beforeEach(async () => {
-      // Create more diverse test data
       const comments = [
         testDataFactories.validComment({
           profileId,
@@ -900,7 +858,7 @@ describe("Comment API Integration Tests", () => {
       const response = await request(app)
         .get("/api/comments")
         .query({
-          sort: "recent", // Valid sort
+          sort: "recent",
         })
         .expect(200);
 
@@ -928,7 +886,6 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should filter comment count by profileId", async () => {
-      // Create another profile and comments
       const anotherProfileData = testDataFactories.validProfile({
         profileId: 99999,
         name: "Another Test Profile",
@@ -947,7 +904,6 @@ describe("Comment API Integration Tests", () => {
         await request(app).post("/api/comments").send(commentData);
       }
 
-      // Test filter by original profileId
       const response = await request(app)
         .get(`/api/comments/count?profileId=${profileId}`)
         .expect(200);
@@ -976,7 +932,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("GET /comments/stats - Get Comment Statistics", () => {
     beforeEach(async () => {
-      // Create test comments with some votes
       const comments = testDataFactories.validComments(profileId, 10);
       for (const commentData of comments) {
         await request(app).post("/api/comments").send(commentData);
@@ -1012,8 +967,6 @@ describe("Comment API Integration Tests", () => {
 
   describe("Error Handling & Edge Cases", () => {
     test("should handle database connection issues gracefully", async () => {
-      // This test would need to simulate database issues
-      // For now, we test that the API responds correctly to valid requests
       const response = await request(app)
         .get("/api/comments/health")
         .expect(200);
@@ -1049,9 +1002,9 @@ describe("Comment API Integration Tests", () => {
     test("should handle very large valid requests", async () => {
       const commentData = testDataFactories.validComment({
         profileId,
-        content: "A".repeat(1000), // Maximum allowed length
-        title: "B".repeat(200), // Maximum allowed length
-        author: "C".repeat(100), // Maximum allowed length
+        content: "A".repeat(1000),
+        title: "B".repeat(200),
+        author: "C".repeat(100),
       });
 
       const response = await request(app)
@@ -1084,7 +1037,6 @@ describe("Comment API Integration Tests", () => {
 
       const responses = await Promise.all(commentPromises);
 
-      // All requests should succeed
       expect(responses).toHaveLength(concurrentRequests);
       responses.forEach((response, index) => {
         expect(response.body.comment.content).toBe(
@@ -1092,7 +1044,6 @@ describe("Comment API Integration Tests", () => {
         );
       });
 
-      // Verify all comments were created
       const allCommentsResponse = await request(app)
         .get("/api/comments")
         .expect(200);
@@ -1103,7 +1054,6 @@ describe("Comment API Integration Tests", () => {
     });
 
     test("should handle bulk comment retrieval efficiently", async () => {
-      // Create many comments
       const commentCount = 50;
       const commentPromises = [];
 
@@ -1132,7 +1082,7 @@ describe("Comment API Integration Tests", () => {
       const responseTime = endTime - startTime;
 
       expect(response.body.comments).toHaveLength(commentCount);
-      expect(responseTime).toBeLessThan(1000); // Should respond within 1 second
+      expect(responseTime).toBeLessThan(1000);
     });
   });
 });

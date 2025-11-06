@@ -1,10 +1,3 @@
-/**
- * General Votes API Integration Tests
- *
- * Comprehensive test suite for general voting API endpoints
- * Tests personality values, top comments, vote history, bulk operations, and statistics
- */
-
 const request = require("supertest");
 const {
   testDataFactories,
@@ -22,10 +15,8 @@ describe("General Votes API Integration Tests", () => {
   });
 
   beforeEach(async () => {
-    // Clean database before each test
     await databaseHelpers.cleanDatabase();
 
-    // Create a test profile
     const profileData = testDataFactories.validProfile();
     const profileResponse = await request(app)
       .post("/api/profile")
@@ -36,7 +27,6 @@ describe("General Votes API Integration Tests", () => {
       profileResponse.body.profile?.id ||
       profileResponse.body.profileId;
 
-    // Create multiple test comments for voting
     const comments = testDataFactories.validComments(profileId, 5);
     commentIds = [];
 
@@ -70,7 +60,6 @@ describe("General Votes API Integration Tests", () => {
         lastUpdated: expect.any(String),
       });
 
-      // Verify MBTI values are valid 4-letter combinations
       expect(response.body.personalityValues.mbti).toEqual(
         expect.arrayContaining([
           "INTJ",
@@ -80,12 +69,10 @@ describe("General Votes API Integration Tests", () => {
         ])
       );
 
-      // Verify Enneagram values follow correct pattern
       expect(response.body.personalityValues.enneagram).toEqual(
         expect.arrayContaining([expect.stringMatching(/^[1-9]w[1-9]$/)])
       );
 
-      // Verify zodiac signs are included
       expect(response.body.personalityValues.zodiac).toEqual(
         expect.arrayContaining(["Aries", "Scorpio", "Pisces", "Leo"])
       );
@@ -100,7 +87,6 @@ describe("General Votes API Integration Tests", () => {
       const now = new Date();
       const timeDiff = now.getTime() - timestamp.getTime();
 
-      // Timestamp should be recent (within last minute)
       expect(timeDiff).toBeLessThan(60000);
     });
 
@@ -111,17 +97,14 @@ describe("General Votes API Integration Tests", () => {
 
       const { personalityValues } = response.body;
 
-      // All personality systems should be present
       expect(personalityValues).toHaveProperty("mbti");
       expect(personalityValues).toHaveProperty("enneagram");
       expect(personalityValues).toHaveProperty("zodiac");
 
-      // All should be arrays
       expect(Array.isArray(personalityValues.mbti)).toBe(true);
       expect(Array.isArray(personalityValues.enneagram)).toBe(true);
       expect(Array.isArray(personalityValues.zodiac)).toBe(true);
 
-      // Arrays should not be empty
       expect(personalityValues.mbti.length).toBeGreaterThan(0);
       expect(personalityValues.enneagram.length).toBeGreaterThan(0);
       expect(personalityValues.zodiac.length).toBeGreaterThan(0);
@@ -130,7 +113,6 @@ describe("General Votes API Integration Tests", () => {
 
   describe("GET /votes/top-comments - Get Top Voted Comments", () => {
     beforeEach(async () => {
-      // Create votes for different comments to establish ranking
       const voteScenarios = [
         { commentIndex: 0, voteCount: 10 },
         { commentIndex: 1, voteCount: 7 },
@@ -142,7 +124,6 @@ describe("General Votes API Integration Tests", () => {
       for (const scenario of voteScenarios) {
         const commentId = commentIds[scenario.commentIndex];
 
-        // Create multiple votes from different IPs
         for (let i = 0; i < scenario.voteCount; i++) {
           await request(app)
             .post(`/api/comments/${commentId}/vote`)
@@ -163,16 +144,14 @@ describe("General Votes API Integration Tests", () => {
 
       expect(response.body).toMatchObject({
         comments: expect.any(Array),
-        personalitySystem: null, // No filter applied
-        limit: 10, // Default limit
+        personalitySystem: null,
+        limit: 10,
         lastUpdated: expect.any(String),
       });
 
-      // Should return comments (up to limit)
       expect(response.body.comments.length).toBeLessThanOrEqual(10);
       expect(response.body.comments.length).toBeGreaterThan(0);
 
-      // Comments should include vote-related data
       response.body.comments.forEach((commentData) => {
         expect(commentData).toHaveProperty("commentId");
         expect(commentData).toHaveProperty("totalVotes");
@@ -182,7 +161,6 @@ describe("General Votes API Integration Tests", () => {
         expect(commentData.comment).toHaveProperty("author");
       });
 
-      // Verify descending order by vote count
       for (let i = 1; i < response.body.comments.length; i++) {
         expect(response.body.comments[i - 1].totalVotes).toBeGreaterThanOrEqual(
           response.body.comments[i].totalVotes
@@ -241,10 +219,8 @@ describe("General Votes API Integration Tests", () => {
 
       expect(response.body).toHaveProperty("comments");
       expect(Array.isArray(response.body.comments)).toBe(true);
-      // Should return the comments created by beforeEach (5 total)
       expect(response.body.comments).toHaveLength(5);
 
-      // Verify they're properly structured
       response.body.comments.forEach((comment) => {
         expect(comment).toHaveProperty("commentId");
         expect(comment).toHaveProperty("totalVotes");
@@ -253,10 +229,8 @@ describe("General Votes API Integration Tests", () => {
     });
 
     test("should return empty array when no votes exist", async () => {
-      // Clean all votes
       await databaseHelpers.cleanDatabase();
 
-      // Recreate basic data without votes
       const profileData = testDataFactories.validProfile();
       const profileResponse = await request(app)
         .post("/api/profile")
@@ -277,12 +251,11 @@ describe("General Votes API Integration Tests", () => {
 
   describe("GET /votes/stats - Get Personality System Statistics", () => {
     beforeEach(async () => {
-      // Create diverse votes for statistics
       const votes = [
         { commentId: commentIds[0], system: "mbti", value: "INTJ" },
         { commentId: commentIds[0], system: "mbti", value: "ENFP" },
         { commentId: commentIds[0], system: "enneagram", value: "4w5" },
-        { commentId: commentIds[1], system: "mbti", value: "INTJ" }, // Same value, different comment
+        { commentId: commentIds[1], system: "mbti", value: "INTJ" },
         { commentId: commentIds[1], system: "zodiac", value: "Scorpio" },
         { commentId: commentIds[2], system: "enneagram", value: "7w8" },
       ];
@@ -307,7 +280,6 @@ describe("General Votes API Integration Tests", () => {
         lastUpdated: expect.any(String),
       });
 
-      // Should contain statistics for different personality systems
       expect(response.body.personalityStats.length).toBeGreaterThan(0);
     });
 
@@ -344,7 +316,6 @@ describe("General Votes API Integration Tests", () => {
 
   describe("GET /votes/count - Get Vote Count", () => {
     beforeEach(async () => {
-      // Create various votes for counting
       const votes = testDataFactories.validVotes(commentIds[0], 8);
 
       for (let i = 0; i < votes.length; i++) {
@@ -354,7 +325,6 @@ describe("General Votes API Integration Tests", () => {
           .send(votes[i]);
       }
 
-      // Add votes to another comment
       const moreVotes = testDataFactories.validVotes(commentIds[1], 3);
 
       for (let i = 0; i < moreVotes.length; i++) {
@@ -439,12 +409,11 @@ describe("General Votes API Integration Tests", () => {
 
   describe("GET /votes/history - Get Vote History", () => {
     beforeEach(async () => {
-      // Create vote history for current user (identified by IP)
       const userVotes = [
         { commentId: commentIds[0], system: "mbti", value: "INTJ" },
         { commentId: commentIds[1], system: "enneagram", value: "4w5" },
         { commentId: commentIds[2], system: "zodiac", value: "Scorpio" },
-        { commentId: commentIds[0], system: "enneagram", value: "7w8" }, // Different system, same comment
+        { commentId: commentIds[0], system: "enneagram", value: "7w8" },
         { commentId: commentIds[3], system: "mbti", value: "ENFP" },
       ];
 
@@ -458,7 +427,6 @@ describe("General Votes API Integration Tests", () => {
           });
       }
 
-      // Create votes from different user (different IP)
       await request(app)
         .post(`/api/comments/${commentIds[4]}/vote`)
         .set("X-Forwarded-For", "10.0.0.1")
@@ -479,7 +447,6 @@ describe("General Votes API Integration Tests", () => {
         filters: expect.any(Object),
       });
 
-      // Should return votes for current user only (should be 5 votes)
       expect(response.body.votes.length).toBe(5);
 
       response.body.votes.forEach((vote) => {
@@ -520,7 +487,7 @@ describe("General Votes API Integration Tests", () => {
         .query({ personalitySystem: "mbti" })
         .expect(200);
 
-      expect(response.body.votes.length).toBe(2); // Should have 2 MBTI votes
+      expect(response.body.votes.length).toBe(2);
       response.body.votes.forEach((vote) => {
         expect(vote.personalitySystem).toBe("mbti");
       });
@@ -553,7 +520,7 @@ describe("General Votes API Integration Tests", () => {
     test("should return empty history for user with no votes", async () => {
       const response = await request(app)
         .get("/api/votes/history")
-        .set("X-Forwarded-For", "10.0.0.99") // Different IP with no votes
+        .set("X-Forwarded-For", "10.0.0.99")
         .expect(200);
 
       expect(response.body.votes).toHaveLength(0);
@@ -585,7 +552,6 @@ describe("General Votes API Integration Tests", () => {
         }),
       });
 
-      // All votes should be successful
       expect(response.body.summary.successful).toBe(3);
       expect(response.body.summary.failed).toBe(0);
       expect(response.body.errors).toHaveLength(0);
@@ -603,7 +569,7 @@ describe("General Votes API Integration Tests", () => {
             profileId: profileId,
           },
           {
-            commentId: "invalid_id", // This should fail
+            commentId: "invalid_id",
             personalitySystem: "mbti",
             personalityValue: "ENFP",
             voterIdentifier: "bulk_user_2",
@@ -611,7 +577,7 @@ describe("General Votes API Integration Tests", () => {
           },
           {
             commentId: commentIds[1],
-            personalitySystem: "invalid_system", // This should fail
+            personalitySystem: "invalid_system",
             personalityValue: "Scorpio",
             voterIdentifier: "bulk_user_3",
             profileId: profileId,
@@ -649,13 +615,12 @@ describe("General Votes API Integration Tests", () => {
       const response = await request(app)
         .post("/api/votes/bulk")
         .send(emptyData)
-        .expect(200); // Empty array is valid, just no operations
+        .expect(200);
 
       expect(response.body.summary.total).toBe(0);
     });
 
     test("should handle large bulk operations", async () => {
-      // Create a larger set of comments for bulk testing
       const manyComments = [];
       for (let i = 0; i < 20; i++) {
         const commentData = testDataFactories.validComment({
@@ -707,7 +672,6 @@ describe("General Votes API Integration Tests", () => {
 
   describe("Integration and Cross-Feature Tests", () => {
     test("should maintain consistency between different vote endpoints", async () => {
-      // Create some votes
       const votes = testDataFactories.validVotes(commentIds[0], 5);
 
       for (let i = 0; i < votes.length; i++) {
@@ -717,40 +681,34 @@ describe("General Votes API Integration Tests", () => {
           .send(votes[i]);
       }
 
-      // Check count endpoint
       const countResponse = await request(app)
         .get("/api/votes/count")
         .query({ commentId: commentIds[0] });
 
-      // Check history endpoint
       const historyResponse = await request(app)
         .get("/api/votes/history")
-        .set("X-Forwarded-For", "192.168.1.0"); // Same as first vote
+        .set("X-Forwarded-For", "192.168.1.0");
 
-      // Check comment-specific votes
       const commentVotesResponse = await request(app).get(
         `/api/comments/${commentIds[0]}/votes`
       );
 
-      // All should reflect the same underlying data
-      expect(countResponse.body.count).toBeGreaterThanOrEqual(3); // At least 3 votes should be created
-      expect(countResponse.body.count).toBeLessThanOrEqual(5); // But not more than 5
-      expect(historyResponse.body.votes.length).toBe(1); // Only one vote for this IP
+      expect(countResponse.body.count).toBeGreaterThanOrEqual(3);
+      expect(countResponse.body.count).toBeLessThanOrEqual(5);
+      expect(historyResponse.body.votes.length).toBe(1);
       expect(commentVotesResponse.body.votes.length).toBe(5);
     });
 
     test("should handle complex personality system interactions", async () => {
-      // Test all personality systems with their valid values
       const personalityValuesResponse = await request(app).get(
         "/api/votes/personality-values"
       );
 
       const { personalityValues } = personalityValuesResponse.body;
 
-      // Test voting with each personality system
       for (const system of ["mbti", "enneagram", "zodiac"]) {
         const values = personalityValues[system];
-        const testValue = values[0]; // Use first valid value
+        const testValue = values[0];
 
         await request(app)
           .post(`/api/comments/${commentIds[0]}/vote`)
@@ -762,7 +720,6 @@ describe("General Votes API Integration Tests", () => {
           });
       }
 
-      // Verify votes were created correctly
       const statsResponse = await request(app).get(
         `/api/comments/${commentIds[0]}/votes/stats`
       );
@@ -773,7 +730,6 @@ describe("General Votes API Integration Tests", () => {
     });
 
     test("should handle edge cases in vote aggregation", async () => {
-      // Create votes with same personality value from different users
       const sameValue = { system: "mbti", value: "INTJ" };
 
       for (let i = 0; i < 5; i++) {
@@ -791,7 +747,6 @@ describe("General Votes API Integration Tests", () => {
         `/api/comments/${commentIds[0]}/votes/stats`
       );
 
-      // Should aggregate votes correctly
       expect(statsResponse.body.voteStats.mbti.INTJ).toBe(5);
     });
   });
